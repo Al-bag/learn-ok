@@ -1,0 +1,258 @@
+/* Reset and base styles */
+*{margin: 0;padding: 0;box-sizing: border-box;outline: none;}
+.flex{display: flex;}
+body, html {
+  font-family: Arial, sans-serif;
+  background: #e5ddd5;
+}
+h4{
+  display: inline-block;
+}
+#go{
+  display: none;
+  cursor: pointer;
+}
+#btn{
+font-size: 20px;
+cursor: pointer;
+display: none;
+}
+.logout-btn{
+  background: #e74c3c;
+}
+.logout-btn:hover {
+background: #45a049 ;
+}
+.header{
+  width: 100%;
+  align-items: center;
+justify-content: space-between;
+}
+.roomNo{
+  margin: 0 0 0 30px;
+}
+.container {
+  height: 100vh;
+  padding: 10px;
+  gap: 15px;
+}
+
+/* Sidebar styles */
+.sidebar {
+  min-width: 500px;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex-direction: column;
+  gap: 15px;
+  display: flex;
+}
+img{
+  width:35px ;
+  height: 35px;
+}
+.user-info,
+.mainCont {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: auto;
+}
+.user-info{
+min-height: 40px;
+}
+.mainCont{
+height: 100%;
+}
+
+.mainCont .flex{
+justify-content: space-between;
+align-items: center;
+}
+
+.room-input {
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.users{
+align-items: center;
+margin: 10px 5px 10px;
+}
+
+/* Chatbox styles */
+.chatbox {
+  flex-grow: 1;
+  background: #ffffff;
+  border-radius: 10px;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  max-width: 800px;
+  word-break: break-word;
+  overflow: auto;
+}
+span{
+  font-weight: bold;
+}
+.messages {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #ece5dd;
+}
+
+/* Input area */
+.inputArea {
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+.input {
+  flex-grow: 1;
+  width: 100%;
+  padding: 15px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+#sendBtn{
+font-size: 20px;
+border-radius: 50%;
+background:none;
+color: black;
+border: 1.7px solid #ddd;
+}
+#sendBtn:hover{
+background: #ddd;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+button:active {
+  background: #388e3c;
+}
+.go{
+  font-size: 20px;
+cursor: pointer;
+margin: 10px;
+z-index: 100;
+}
+.btn{
+margin: 10px;
+width: 100%;
+}
+.user-info{
+  justify-content: space-between;
+}
+.user{
+display: inline-block; margin:10px;
+}
+.user .div{
+display: flex;
+justify-content: space-between;
+margin-bottom: 5px;
+font-size: 13px;
+color: #555;
+}
+
+.div strong{
+font-weight: bold;
+color: #2c3e50;
+}
+
+.div span{
+font-size: 12px;
+color: #999;
+padding-left: 10px;
+}
+
+.div2{
+color: #333;
+}
+
+.img{
+border-radius: 50%;
+margin: 0 10px;
+object-fit: cover;
+border: 1px solid #ccc;
+}
+
+
+
+/* file transfer icon */
+#file{
+border-radius: 1px solid #000;
+border-radius: 50%;
+background: #fff;
+}
+.icon{
+  font-weight: bold;
+  font-size: 20px;
+}
+
+
+input[type="file"] {
+  display: none;
+}
+
+label[for="file"] { display: flex;
+  justify-content: center;
+  align-items: center; border-radius: 50%;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  text-align:center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+  width: 35px;
+  height: 35px;
+  margin: 0 10px 0 0;
+}
+
+label[for="file"]:hover {
+  background: linear-gradient(135deg, #a777e3, #6e8efb);
+  transform: scale(1.05);
+}
+
+
+#confirmBox{
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+}
+#confirmBox .box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+#confirmBox button {
+  margin: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}  

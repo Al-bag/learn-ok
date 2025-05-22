@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chatpage</title>
+  <link rel="icon" href="icon.ico">
+  <link rel="stylesheet" href="chat.css">
+  <link rel="stylesheet" href="responsive.css">
+</head>
+<body class="h-full">
+<div class="container flex">
+ <div id="confirmBox">   <div class="box">     <p></p> 
+  <button onclick="handleResponse(true)">Yes</button> 
+  <button onclick="handleResponse(false)">No</button>   </div> </div> 
+<aside class="sidebar">
+<div id="user-info" class="user-info flex">
+</div>
+<div id="roomInfo">
+<div class="flex">
+<button id="createRoomBtn" class="btn">Create Room</button>
+            <button id="deleteRoomBtn" class="btn">Delete Room</button>
+        </div>
+        </div>
+      <div class="mainCont">
+      </div>
+      <input type="text" class="room-input  p-2.5" placeholder="Enter room number" style="display:none">
+    </aside>
+
+    <main class="chatbox flex">
+      <div class="header flex">
+        <h4 id="btn" class="p-3">👤️</h4>
+        <h4 class="roomNo">Room no: <span id="roomName"></span></h4>
+      <button onclick="logout()" id="logOutBtn" class="logout-btn m-2.5">Logout</button>
+    </div>
+      <div id="messages" class="messages"></div>
+
+      <div class="inputArea flex p-2.5">
+          <div class="file-input-wrapper flex justify-center items-center">
+    <input type="file" id="file" class="p-2.5 w-10 h-10 m-2.5" multiple>
+    <label for="file">
+      <span class="icon">+</span>
+    </label>
+  </div> 
+        <input id="input" placeholder="Message..." class="input">
+        <button id="sendBtn">&#10148;</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
+<script type="text/javascript" src="tailwind.js"></script>
+</body>
+</html>
+

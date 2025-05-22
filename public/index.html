@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Login/Signup</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="responsive.css">
+  <link rel="icon" href="icon.ico">
+</head>
+<body class="flex justify-center items-center reset">
+<div class="ui flex flex-col text-center bg-[#ddd]">
+  <div class="signUpForm flex flex-col">
+    <h2>Sign Up</h2>
+    <input type="text" placeholder="First Name" id="firstName" class="input firstName">
+    <input type="text" placeholder="Last Name (optional)" id="lastName" class="input lastName">
+    
+    <input type="text" placeholder="Custom Room no" class="room-no numberInput input">
+    <div class="alert numberAlert">Only numbers allowed!</div>
+    <input type="text" placeholder="Username" id="username" class="input">
+    <div class="alert usernameAlert">Minimum use 4 digit username!</div>
+    <input type="password" placeholder="Password" class="input" id="password">
+    <div class="alert passwordAlert">Minimum use 8 digit password!</div>
+    <p>I don't have an account. <strong class="signUp">Sign Up</strong></p>
+    <button onclick="signup()" class="hover:bg-[#3498db]">Sign Up</button>
+  </div>
+  <div class="logInForm hidden flex-col">
+    <h2>Login</h2>
+    <input type="text" placeholder="Username" class="input" id="logInUsername">
+    <input type="password" placeholder="Password" class="input" id="logInPassword">
+    <p>Have an account already? <strong class="logIn">Log In</strong></p>
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+<!-- <div class="w-15 h-15 bg-[#9141ac] m-2.6 p-2 text-center text-[#fff]">sami</div> -->
+<script src="css-logic.js"></script>
+<script src="tailwind.js"></script>
+<script src="main1.js">
+</script>
+</body>
+</html>

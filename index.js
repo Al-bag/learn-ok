@@ -13,7 +13,7 @@ const USERS_DIR = path.join(__dirname, 'users');
 const CHATS_DIR = path.join(__dirname, 'chats');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
-const port = 3456;
+const port = process.env.PORT || 3456;
 
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
 if (!fs.existsSync(USERS_DIR)) fs.mkdirSync(USERS_DIR);

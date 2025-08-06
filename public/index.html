@@ -1,43 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Login/Signup</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="responsive.css">
-  <link rel="icon" href="icon.ico">
+    <title>VibeChat | Welcome</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://placehold.co/32x32/7c3aed/ffffff?text=V">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/login.css" type="text/css" media="all" />
 </head>
-<body class="flex justify-center items-center reset">
-<div class="ui flex flex-col text-center bg-[#ddd]">
-  <div class="signUpForm flex flex-col">
-    <h2>Sign Up</h2>
-    <input type="text" placeholder="First Name" id="firstName" class="input firstName">
-    <input type="text" placeholder="Last Name (optional)" id="lastName" class="input lastName">
-    
-    <input type="text" placeholder="Custom Room no" class="room-no numberInput input">
-    <div class="alert numberAlert">Only numbers allowed!</div>
-    <input type="text" placeholder="Username" id="username" class="input">
-    <div class="alert usernameAlert">Minimum use 4 digit username!</div>
-    <input type="password" placeholder="Password" class="input" id="password">
-    <div class="alert passwordAlert">Minimum use 8 digit password!</div>
-    <p>I don't have an account. <strong class="signUp">Sign Up</strong></p>
-    <button onclick="signup()" class="hover:bg-[#3498db]">Sign Up</button>
-  </div>
-  <div class="logInForm hidden flex-col">
-    <h2>Login</h2>
-    <input type="text" placeholder="Username" class="input" id="logInUsername">
-    <input type="password" placeholder="Password" class="input" id="logInPassword">
-    <p>Have an account already? <strong class="logIn">Log In</strong></p>
-    <button onclick="login()">Login</button>
-  </div>
-</div>
-<!-- <div class="w-15 h-15 bg-[#9141ac] m-2.6 p-2 text-center text-[#fff]">sami</div> -->
-<script src="css-logic.js"></script>
-<script src="tailwind.js"></script>
-<script src="main1.js">
+<body>
+
+    <div class="auth-container">
+        <div class="auth-form-section">
+            <h2 class="form-title" id="formTitle">Login to VibeChat</h2>
+            <form id="authForm" novalidate>
+                <!-- Fields for Signup Only -->
+                <div class="signup-fields">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="firstName" placeholder="First Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="lastName" placeholder="Last Name (optional)">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="roomNo" placeholder="Initial Room No" required pattern="[0-9]+">
+                        <div class="invalid-feedback">Room must be a number.</div>
+                    </div>
+                </div>
+
+                <!-- Fields for Both Login & Signup -->
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="username" placeholder="Username" required minlength="4">
+                    <div class="invalid-feedback">Please enter a username (at least 4 characters).</div>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" placeholder="Password" required minlength="8">
+                    <div class="invalid-feedback">Please enter a password (at least 8 characters).</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" id="submitBtn">Login</button>
+
+                <p class="text-center mt-3 text-muted">
+                    <span class="login-switch-text">Don't have an account? <strong class="form-switch-link" onclick="toggleMode()">Sign Up</strong></span>
+                    <span class="signup-switch-text">Already have an account? <strong class="form-switch-link" onclick="toggleMode()">Login</strong></span>
+                </p>
+            </form>
+        </div>
+        <div class="auth-branding-section">
+            <h1 class="mb-3">VibeChat</h1>
+            <p>Connect instantly, share freely. Your new favorite place to talk.</p>
+        </div>
+    </div>
+
+<script src="js/login.js">
 </script>
+
 </body>
 </html>

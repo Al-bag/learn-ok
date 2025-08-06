@@ -1,1 +1,167 @@
+    :root {
+      --primary-color: #7c3aed; /* Vibrant Purple */
+      --secondary-color: #0d6efd; /* Bootstrap Blue for accents */
+      --dark-bg-1: #111827; /* Dark Gray */
+      --dark-bg-2: #1f2937; /* Lighter Dark Gray */
+      --dark-bg-3: #374151; /* Even Lighter */
+      --text-light: #f9fafb;
+      --text-muted: #9ca3af;
+    }
 
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg-1), var(--dark-bg-2));
+      color: var(--text-light);
+      overflow: hidden; /* Prevent body scroll */
+    }
+
+    .main-container, .chat-row {
+      height: 100vh;
+    }
+
+    /* --- Sidebar Styling --- */
+    .sidebar {
+      background-color: var(--dark-bg-1);
+      border-right: 1px solid var(--dark-bg-3) !important;
+      transition: left 0.3s ease-in-out;
+    }
+    #user-info h5 {
+      color: var(--text-light);
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+      background-color: #6d28d9;
+      border-color: #6d28d9;
+    }
+    .list-group-item {
+      background-color: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-left: 3px solid transparent;
+      border-radius: 0;
+      transition: all 0.2s ease;
+    }
+    .list-group-item:hover {
+      background-color: var(--dark-bg-2);
+      color: var(--text-light);
+    }
+    .list-group-item.active {
+      background-color: var(--dark-bg-2);
+      color: var(--primary-color);
+      font-weight: 600;
+      border-left-color: var(--primary-color);
+    }
+
+    /* --- Chatbox Styling --- */
+    .chat-header {
+      background-color: var(--dark-bg-2);
+      border-bottom: 1px solid var(--dark-bg-3) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    #roomName {
+      color: var(--primary-color);
+    }
+
+    /* --- Messages Area --- */
+    .messages-area {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    /* Custom Scrollbar */
+    .messages-area::-webkit-scrollbar {
+      width: 8px;
+    }
+    .messages-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .messages-area::-webkit-scrollbar-thumb {
+      background-color: var(--dark-bg-3);
+      border-radius: 10px;
+    }
+    .messages-area::-webkit-scrollbar-thumb:hover {
+      background-color: #4b5563;
+    }
+
+    /* Message Bubbles */
+    .message {
+      max-width: 70%;
+      word-wrap: break-word;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .message.sent {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .message.received {
+      background-color: var(--dark-bg-3);
+      color: var(--text-light);
+    }
+    .message a {
+      color: #93c5fd; /* Light blue for links in bubbles */
+      text-decoration: none;
+    }
+    .message a:hover {
+      text-decoration: underline;
+    }
+
+    /* --- Input Area --- */
+    .input-area {
+      background-color: var(--dark-bg-2);
+      border-top: 1px solid var(--dark-bg-3) !important;
+    }
+    .form-control {
+      background-color: var(--dark-bg-3);
+      color: var(--text-light);
+      border-color: var(--dark-bg-3);
+    }
+    .form-control:focus {
+      background-color: var(--dark-bg-3);
+      color: var(--text-light);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(124, 58, 237, 0.25);
+    }
+    .form-control::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* --- Mobile Responsive --- */
+    @media (max-width: 767.98px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100%;
+        z-index: 1030;
+      }
+      .sidebar.active {
+        left: 0;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+      }
+      .chat-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1020;
+        display: none;
+      }
+       .sidebar.active + .chat-overlay {
+        display: block;
+      }
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        background-color: var(--dark-bg-2);
+        border: 1px solid var(--dark-bg-3);
+    }
+    .modal-header, .modal-footer {
+        border-bottom: 1px solid var(--dark-bg-3);
+        border-top: 1px solid var(--dark-bg-3);
+    }

@@ -1,0 +1,41 @@
+/* Responsive layout */
+@media (max-width: 450px) {
+  .container {
+    flex-direction: column;
+    height: 100%;
+  }
+  .sidebar {
+    min-width: 100%;
+    height: 100%;
+display: none;
+
+  }
+  .chatbox {
+    width: 100%;
+  }
+  .go{
+    display: block;
+  }
+  #btn{
+    display: block;
+  }
+  .header{
+  width: 100%;
+  align-items: center;
+  display: flex;
+}
+#go{
+  display: block;
+}
+.roomNo{
+  margin: 0;
+}
+
+
+}
+
+@media all and (max-width:700px){
+    .ui{
+        width: 96%;
+    }
+}

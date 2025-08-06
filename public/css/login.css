@@ -1,0 +1,135 @@
+        :root {
+            --primary-color: #7c3aed;
+            --dark-bg-1: #111827;
+            --dark-bg-2: #1f2937;
+            --dark-bg-3: #374151;
+            --text-light: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg-1);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--dark-bg-2);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-form-section {
+            padding: 3rem;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .auth-branding-section {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .auth-branding-section h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+        
+        .auth-branding-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-title {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            background-color: var(--dark-bg-3);
+            color: var(--text-light);
+            border: 1px solid var(--dark-bg-3);
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus {
+            background-color: var(--dark-bg-3);
+            color: var(--text-light);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(124, 58, 237, 0.25);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #6d28d9;
+            border-color: #6d28d9;
+        }
+
+        .form-switch-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .form-switch-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Hide signup-only fields by default */
+        .signup-fields {
+            display: none;
+        }
+        
+        /* When the form has the 'signup-mode' class, show the fields */
+        .signup-mode .signup-fields {
+            display: block;
+        }
+        
+        /* In signup mode, hide the login-specific text */
+        .signup-mode .login-switch-text {
+            display: none;
+        }
+        
+        /* By default, show the login text and hide the signup text */
+        .signup-switch-text {
+            display: none;
+        }
+        .signup-mode .signup-switch-text {
+            display: block;
+        }
+
+        @media (max-width: 767.98px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            .auth-branding-section {
+                display: none; /* Hide branding on small screens to save space */
+            }
+            .auth-form-section {
+                padding: 2rem;
+            }
+        }

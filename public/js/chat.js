@@ -1,11 +1,10 @@
 
 /**
  * =================================================================
- * Main JavaScript for Bootstrap Chat App
+ * Main JavaScript for VibeChat
  * =================================================================
  * This script handles user authentication, room management,
- * real-time messaging via Socket.IO, and UI interactions
- * for the Bootstrap-styled chat interface.
+ * real-time messaging via Socket.IO, and all UI interactions.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,26 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('sendBtn');
     const roomNameSpan = document.getElementById('roomName');
     const roomListContainer = document.querySelector('.mainCont');
-    const createRoomBtn = document.getElementById('createRoomBtn');
-    const deleteRoomBtn = document.getElementById('deleteRoomBtn');
+    const userListContainer = document.getElementById('user-list');
     const fileInput = document.getElementById('file');
     const userInfoContainer = document.getElementById('user-info');
     const sidebar = document.getElementById('sidebar');
-    
-    // --- Bootstrap Modal Instance ---
-    const confirmModalEl = document.getElementById('confirmModal');
-    const confirmModal = new bootstrap.Modal(confirmModalEl);
-    let modalResolve = null; // To store the promise's resolve function
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    // --- Bootstrap Modal Instance & State ---
+    const appModalEl = document.getElementById('appModal');
+    const appModal = new bootstrap.Modal(appModalEl);
+    let modalCallback = null;
 
     // --- User and State Management ---
     const user = JSON.parse(localStorage.getItem('user'));
     let currentRoom = '';
+    let typingTimeout;
 
     // --- Authentication Check ---
-    if (!user || !user.username) {
+    `if (!user || !user.username) {
         window.location.href = '/'; // Redirect to login if no user data
         return;
-    }
+    }`
     
     // --- Initialize Socket.IO ---
     const socket = io();
@@ -45,24 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeRooms();
 
     /**
-     * Initializes user information in the sidebar.
+     * Sets up the user's profile information in the sidebar.
      */
     function initializeUser() {
-        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        const fullName = (`${user.firstName || ''} ${user.lastName || ''}`).trim();
         userInfoContainer.innerHTML = `
-            <img src="https://placehold.co/40x40/0d6efd/ffffff?text=${(user.firstName || 'U').charAt(0)}" class="rounded-circle me-3" alt="User Avatar">
-            <h5 class="mb-0 fw-bold text-truncate">${fullName || user.username}</h5>
+            <img src="https://placehold.co/40x40/7c3aed/ffffff?text= ${(user.firstName || user.username).charAt(0).toUpperCase()}" class="rounded-circle me-3" alt="User Avatar">
+            <div>
+                <h5 class="mb-0 fw-bold text-truncate">${fullName || user.username}</h5>
+                <small class="text-muted">@ ${user.username}</small>
+            </div>
         `;
     }
 
     /**
-     * Initializes room list and joins the first available room.
+     * Renders the initial room list and joins the first room.
      */
     function initializeRooms() {
         if (!user.roomNos || user.roomNos.length === 0) {
-            showConfirmModal("You aren't assigned to any rooms. Please create one.", false).then(() => {
-                 // The modal will just close. User can then use 'Create Room' button.
-            });
+            showModal('No Rooms', "You aren't in any rooms yet.", [{ label: 'Close', class: 'btn-secondary' }]);
             return;
         }
         renderRoomList();
@@ -78,8 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
         user.roomNos.forEach(room => {
             const roomEl = document.createElement('a');
             roomEl.href = '#';
-            roomEl.className = 'list-group-item list-group-item-action';
-            roomEl.textContent = `Room #${room}`;
+            roomEl.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            roomEl.dataset.room = room;
+            roomEl.innerHTML = `
+                <span><i class="bi bi-hash me-2"></i>${room}</span>
+            `;
             if (room === currentRoom) {
                 roomEl.classList.add('active');
             }
@@ -96,25 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} room - The room number to join.
      */
     function joinRoom(room) {
-        if (currentRoom === room) return; // Don't rejoin the same room
+        if (currentRoom === room && socket.connected) return;
 
-        socket.emit('joinRoom', { roomNo: room });
+        socket.emit('joinRoom', { roomNo: room, user });
         messagesContainer.innerHTML = ''; // Clear messages from the old room
         currentRoom = room;
         roomNameSpan.innerText = room;
         
         // Update active state in the room list
-        const currentActive = roomListContainer.querySelector('.active');
-        if (currentActive) currentActive.classList.remove('active');
-        
-        // Find the new room link and set it to active
-        const roomLinks = roomListContainer.getElementsByTagName('a');
-        for(let link of roomLinks) {
-            if(link.textContent === `Room #${room}`) {
-                link.classList.add('active');
-                break;
-            }
-        }
+        document.querySelectorAll('.mainCont .list-group-item-action').forEach(el => {
+            el.classList.toggle('active', el.dataset.room === room);
+        });
 
         // On mobile, hide the sidebar after selecting a room
         if (sidebar.classList.contains('active')) {
@@ -133,54 +129,68 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('chat message', {
             firstName: user.firstName,
             lastName: user.lastName,
-            username: user.username, // Send username for identification
+            username: user.username,
             text: text,
-            type: 'text' // Specify message type
+            type: 'text'
         });
+        
+        socket.emit('stop typing');
         messageInput.value = '';
         messageInput.focus();
     }
     
     /**
-     * Handles file uploads.
+     * Handles file uploads via a POST request.
      */
     function handleFileUpload() {
-        const files = fileInput.files;
-        if (!files.length) return;
+        const file = fileInput.files[0];
+        if (!file) return;
 
-        // Using the current room for upload, can be changed to prompt if needed
-        const roomNo = currentRoom; 
-        
         const formData = new FormData();
-        for (let i = 0; i < files.length; i++) {
-            formData.append('files', files[i]);
-        }
-        formData.append('roomNo', roomNo);
+        formData.append('file', file);
+        formData.append('roomNo', currentRoom);
+        formData.append('username', user.username);
+        formData.append('firstName', user.firstName || '');
+        formData.append('lastName', user.lastName || '');
 
-        // Show a loading indicator (optional)
-        displayMessage({ text: 'Uploading file(s)...', system: true });
+        // Show a temporary "uploading" message
+        const tempId = `temp-${Date.now()}`;
+        displayMessage({
+            id: tempId,
+            system: 'upload',
+            text: `Uploading ${file.name}...`
+        });
 
-        fetch('/upload-multiple-to-room', {
+        fetch('/upload-file', {
             method: 'POST',
             body: formData
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Upload failed');
+            }
+            return res.json();
+        })
         .then(data => {
-            console.log('Upload successful:', data);
-            // The server should emit a 'chat message' for the file,
-            // so no need to do anything else here on success.
+            // The server will broadcast the message, so we just need to remove the temp one.
+            // The server-sent message will have a proper ID.
+            const tempEl = document.querySelector(`[data-id='${tempId}']`);
+            if (tempEl) tempEl.remove();
         })
         .catch(err => {
             console.error('Upload failed:', err);
-            displayMessage({ text: 'File upload failed.', system: true, error: true });
+            const tempEl = document.querySelector(`[data-id='${tempId}']`);
+            if (tempEl) {
+                tempEl.innerHTML = `<div class="text-danger fst-italic small">Upload failed for \${file.name}</div>`;
+            }
+        })
+        .finally(() => {
+            fileInput.value = ''; // Reset file input
         });
-        
-        // Reset file input
-        fileInput.value = '';
     }
 
     /**
-     * Displays a message in the chat window.
+     * Displays a single message or a system notification in the chat window.
      * @param {object} msg - The message object from the server.
      */
     function displayMessage(msg) {
@@ -190,26 +200,33 @@ document.addEventListener('DOMContentLoaded', () => {
         messageWrapper.dataset.id = msg.id;
 
         let messageContent = '';
-        if (msg.system) {
-            // System messages (like upload status)
-            messageContent = `<div class="text-muted fst-italic small">${msg.text}</div>`;
+
+        if (msg.system === 'upload') {
+             messageContent = `<div class="text-muted fst-italic small">${msg.text}</div>`;
         } else {
-            // Regular chat messages
-            const senderName = `${msg.firstName || ''} ${msg.lastName || msg.username || 'Anonymous'}`.trim();
-            const messageTime = msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const senderName = isSentByUser ? 'You' : (`${msg.firstName || ''} ${msg.lastName || ''}`).trim() || msg.username;
+            const messageTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             let fileHtml = '';
             if (msg.type === 'file') {
                 fileHtml = `<a href="${msg.fileUrl}" target="_blank" class="text-decoration-none d-block mt-1">
-                                <i class="bi bi-file-earmark-arrow-down"></i> 📎 ${msg.text}
+                                <i class="bi bi-file-earmark-arrow-down"></i> ${msg.text}
                             </a>`;
             } else {
-                fileHtml = `<div class="text-break">${msg.text}</div>`;
+                // Sanitize text content to prevent HTML injection
+                const textEl = document.createElement('div');
+                textEl.className = 'text-break';
+                textEl.textContent = msg.text;
+                fileHtml = textEl.outerHTML;
             }
 
             messageContent = `
-                <div class="message ${isSentByUser ? 'sent' : 'received'} rounded p-2 px-3">
-                    <div class="fw-bold small">${isSentByUser ? 'You' : senderName}</div>
+                <div class="message-bubble ${isSentByUser ? 'sent' : 'received'}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-bold small">${senderName}</div>
+                        ${isSentByUser ? `<i class="bi bi-trash3 ms-2 delete-icon" onclick="requestDeleteMessage('${msg.id}')" title="Delete Message"></i>` : ''}
+                    </div>
+                    \
                     ${fileHtml}
                     <div class="text-end small mt-1 opacity-75">${messageTime}</div>
                 </div>
@@ -218,125 +235,89 @@ document.addEventListener('DOMContentLoaded', () => {
         
         messageWrapper.innerHTML = messageContent;
         messagesContainer.appendChild(messageWrapper);
-        
-        // Add delete functionality on double click for messages sent by the user
-        if (isSentByUser && !msg.system) {
-            messageWrapper.addEventListener('dblclick', () => {
-                showConfirmModal(`Are you sure you want to delete this message?`).then(confirmed => {
-                    if (confirmed) {
-                        socket.emit('delete message', msg.id);
-                    }
-                });
-            });
-        }
-
-        // Scroll to the bottom
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     /**
-     * Shows a confirmation modal.
-     * @param {string} message - The message to display in the modal.
-     * @param {boolean} showCancel - Whether to show the 'No' button.
-     * @returns {Promise<boolean>} - A promise that resolves with true (Yes) or false (No).
+     * Prompts the user for confirmation before deleting a message.
      */
-    function showConfirmModal(message, showCancel = true) {
-        return new Promise(resolve => {
-            modalResolve = resolve; // Store resolve function to be called by button handlers
-            confirmModalEl.querySelector('.modal-body p').textContent = message;
-            const noButton = confirmModalEl.querySelector('.modal-footer .btn-secondary');
-            noButton.style.display = showCancel ? 'inline-block' : 'none';
-            confirmModal.show();
-        });
-    }
+    window.requestDeleteMessage = (id) => {
+        showModal(
+            'Delete Message', 
+            'Are you sure you want to delete this message?', 
+            [
+                { label: 'Cancel', class: 'btn-secondary' },
+                { label: 'Delete', class: 'btn-danger', action: () => socket.emit('delete message', id) }
+            ]
+        );
+    };
 
     /**
-     * Handles the response from the confirmation modal buttons.
-     * @param {boolean} response - The user's response (true for 'Yes', false for 'No').
+     * A versatile function to show a Bootstrap modal.
+     * @param {string} title - The title of the modal.
+     * @param {string} body - The HTML or text content for the modal body.
+     * @param {Array<object>} buttons - An array of button objects {label, class, action}.
      */
-    window.handleResponse = (response) => {
-        if (modalResolve) {
-            modalResolve(response);
+    function showModal(title, body, buttons = []) {
+        appModalEl.querySelector('.modal-title').textContent = title;
+        appModalEl.querySelector('.modal-body').innerHTML = body;
+        const footer = appModalEl.querySelector('.modal-footer');
+        footer.innerHTML = ''; // Clear old buttons
+
+        buttons.forEach(btnInfo => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `btn ${btnInfo.class}`;
+            button.textContent = btnInfo.label;
+            button.addEventListener('click', () => {
+                if (btnInfo.action) {
+                    btnInfo.action();
+                }
+                appModal.hide();
+            });
+            footer.appendChild(button);
+        });
+
+        // Add a default close button if no buttons are provided
+        if (buttons.length === 0) {
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'btn btn-secondary';
+            closeButton.textContent = 'Close';
+            closeButton.dataset.bsDismiss = 'modal';
+            footer.appendChild(closeButton);
         }
-        confirmModal.hide();
-    };
+
+        appModal.show();
+    }
 
 
     // --- Event Listeners ---
 
-    // Send message on button click or Enter key
     sendBtn.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // Prevents new line on enter
+            e.preventDefault();
             sendMessage();
         }
     });
     
-    // Handle file selection
+    messageInput.addEventListener('input', () => {
+        socket.emit('typing');
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            socket.emit('stop typing');
+        }, 2000); // 2 seconds of inactivity
+    });
+
     fileInput.addEventListener('change', handleFileUpload);
     
-    // Create Room
-    createRoomBtn.addEventListener('click', async () => {
-        const newRoom = prompt('Enter new room number:');
-        if (!newRoom || newRoom.trim() === '') return;
-
-        try {
-            const res = await fetch('/create-room', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: user.username, password: user.password, newRoomNo: newRoom.trim() })
-            });
-            if (res.ok) {
-                alert('Room created successfully!');
-                user.roomNos.push(newRoom.trim());
-                localStorage.setItem('user', JSON.stringify(user));
-                renderRoomList(); // Re-render the list with the new room
-                joinRoom(newRoom.trim());
-            } else {
-                const error = await res.text();
-                alert(`Failed to create room: ${error}`);
-            }
-        } catch (err) {
-            console.error('Error creating room:', err);
-            alert('An error occurred while creating the room.');
-        }
-    });
-
-    // Delete Room
-    deleteRoomBtn.addEventListener('click', async () => {
-        const roomToDelete = prompt('Enter room number to delete:');
-        if (!roomToDelete || roomToDelete.trim() === '') return;
-
-        const confirmed = await showConfirmModal(`Are you sure you want to delete room "${roomToDelete}"? This cannot be undone.`);
-        if (!confirmed) return;
-
-        try {
-            const res = await fetch('/delete-room', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: user.username, password: user.password, roomNo: roomToDelete.trim() })
-            });
-            if (res.ok) {
-                alert('Room deleted successfully!');
-                user.roomNos = user.roomNos.filter(r => r !== roomToDelete.trim());
-                localStorage.setItem('user', JSON.stringify(user));
-                renderRoomList();
-                // If the deleted room was the current one, join the first available room
-                if (currentRoom === roomToDelete.trim()) {
-                    joinRoom(user.roomNos[0] || '');
-                }
-            } else {
-                const error = await res.text();
-                alert(`Failed to delete room: ${error}`);
-            }
-        } catch (err) {
-            console.error('Error deleting room:', err);
-            alert('An error occurred while deleting the room.');
-        }
-    });
-    
     // --- Socket.IO Event Handlers ---
+    socket.on('chatHistory', (messages) => {
+        messagesContainer.innerHTML = ''; // Clear before loading history
+        messages.forEach(msg => displayMessage(msg));
+    });
+
     socket.on('chat message', (msg) => {
         displayMessage(msg);
     });
@@ -346,16 +327,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.remove();
     });
 
+    socket.on('updateUserList', (users) => {
+        userListContainer.innerHTML = '';
+        users.forEach(u => {
+            const userEl = document.createElement('div');
+            userEl.className = 'list-group-item list-group-item-action border-0';
+            userEl.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <img src="https://placehold.co/32x32/4b5563/ffffff?text= ${(u.firstName || u.username).charAt(0).toUpperCase()}" class="rounded-circle me-2" alt="Avatar">
+                    <span class="text-truncate">${u.firstName || u.username}</span>
+                    <i class="bi bi-circle-fill text-success small ms-auto" title="Online"></i>
+                </div>
+            `;
+            userListContainer.appendChild(userEl);
+        });
+    });
+
+    socket.on('typing', (typingUsers) => {
+        if (typingUsers.length === 0) {
+            typingIndicator.textContent = '';
+        } else if (typingUsers.length === 1) {
+            typingIndicator.textContent = `${typingUsers[0]} is typing...`;
+        } else {
+            typingIndicator.textContent = `${typingUsers.join(', ')} are typing...`;
+        }
+    });
+
     socket.on('connect_error', (err) => {
         console.error("Connection Error:", err.message);
-        displayMessage({ text: 'Disconnected from server. Trying to reconnect...', system: true, error: true });
+        displayMessage({ system: 'upload', text: 'Disconnected. Attempting to reconnect...' });
     });
     
     socket.on('connect', () => {
         console.log('Connected to server with socket ID:', socket.id);
-        // Re-join room on successful reconnection
         if (currentRoom) {
-            socket.emit('joinRoom', { roomNo: currentRoom });
+            joinRoom(currentRoom);
         }
     });
 });
@@ -365,16 +371,14 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
-    const overlay = document.querySelector('.chat-overlay');
-    // The overlay is controlled by CSS based on the sidebar's 'active' class
+    document.querySelector('.chat-overlay').classList.toggle('active');
 }
 
 /**
- * Logs the user out.
+ * Logs the user out by clearing local storage and redirecting.
  */
 function logout() {
     localStorage.removeItem('user');
     window.location.href = '/';
-}
-
-
+                          }
+                                                     

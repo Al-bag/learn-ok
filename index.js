@@ -261,7 +261,7 @@ io.on('connection', (socket) => {
 });
 
 // Uptime 
-app.get('/',(req,res) => {
+app.get('/check',(req,res) => {
   res.send('ok')
 })
 
